@@ -1,6 +1,11 @@
 import os
 import glob
 import time
+from typing import NamedTuple
+
+class TemperatureInfo(NamedTuple):
+    celcius: float
+    fahrenheit: float
  
 # Load the kernel module for enabling GIPO I/O pins to communicate with 1-wire devices.
 os.system('modprobe w1-gpio')
@@ -23,7 +28,7 @@ def read_temp_raw():
     f.close()
     return lines
 
-def read_temp():
+def read_temp() -> TemperatureInfo:
     lines = read_temp_raw()
     while lines[0].strip()[-3:] != 'YES':
         time.sleep(0.2)
@@ -33,8 +38,4 @@ def read_temp():
         temp_string = lines[1][equals_pos+2:]
         temp_c = float(temp_string) / 1000.0
         temp_f = temp_c * 9.0 / 5.0 + 32.0
-        return temp_c, temp_f
-
-while True:
-	print(read_temp())	
-	time.sleep(1)
+        return TemperatureInfo(celcius=temp_c, fahrenheit=temp_f)

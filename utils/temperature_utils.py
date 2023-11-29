@@ -3,6 +3,8 @@ import glob
 import time
 from typing import NamedTuple
 
+# Code for interacting with sensor pinched from here: https://pimylifeup.com/raspberry-pi-temperature-sensor/ 
+
 class TemperatureInfo(NamedTuple):
     celcius: float
     fahrenheit: float
@@ -28,12 +30,23 @@ def read_temp_raw():
     f.close()
     return lines
 
+
 def read_temp() -> TemperatureInfo:
+    # The raw temperature comes over two lines in the following format:
+    # 54 01 4b 46 7f ff 0c 10 fd : crc=fd YES
+    # 54 01 4b 46 7f ff 0c 10 fd t=21250
     lines = read_temp_raw()
+    
+    # The first line is a checksum to indicate if the measurement is valid. 
+    # If the line ends in 'YES', we can proceed. If 'NO', the sensor is not ready so we wait 0.2 seconds.
     while lines[0].strip()[-3:] != 'YES':
         time.sleep(0.2)
         lines = read_temp_raw()
+    
+    # Now we find the actual raw data by finding 't='.
     equals_pos = lines[1].find('t=')
+
+    # If `equals_pos` is not -1, it means 't=' has been located.
     if equals_pos != -1:
         temp_string = lines[1][equals_pos+2:]
         temp_c = float(temp_string) / 1000.0

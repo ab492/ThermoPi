@@ -7,6 +7,8 @@ load_dotenv()
 def send_balcony_temperature(temp: float):
     url = 'http://api.bramblytech.co.uk/api/temperature/'
     api_key = os.getenv('API_KEY')
+    if not api_key:
+        raise ValueError("API key not found. Please set it in the .env file.")
 
     headers = {
         'X-API-KEY': api_key,
@@ -21,7 +23,7 @@ def send_balcony_temperature(temp: float):
     response = requests.post(url, json=data, headers=headers)
 
     if response.status_code == 201:
-        print("Event sent successfully")
+        print(f"Event sent successfully. Temperature celcius: {temp}.")
     else:
         print(f"Failed to send event: {response.text}")
 

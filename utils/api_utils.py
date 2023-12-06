@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def send_balcony_temperature(temp: float):
-    url = 'http://api.bramblytech.co.uk/api/temperature/'
+    url = 'http://api.bramblytech.co.uk/temperature/'
     api_key = os.getenv('API_KEY')
     if not api_key:
         raise ValueError("API key not found. Please set it in the .env file.")

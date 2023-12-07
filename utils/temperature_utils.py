@@ -36,12 +36,18 @@ def read_temp() -> TemperatureInfo:
     # 54 01 4b 46 7f ff 0c 10 fd : crc=fd YES
     # 54 01 4b 46 7f ff 0c 10 fd t=21250
     lines = read_temp_raw()
+
+    max_attempts = 10
+    attempts = 0
     
     # The first line is a checksum to indicate if the measurement is valid. 
     # If the line ends in 'YES', we can proceed. If 'NO', the sensor is not ready so we wait 0.2 seconds.
     while lines[0].strip()[-3:] != 'YES':
         time.sleep(0.2)
         lines = read_temp_raw()
+        attempts += 1
+        if attempts >= max_attempts:
+            raise TimeoutError("Sensor read attempt exceeded maximum retries.")
     
     # Now we find the actual raw data by finding 't='.
     equals_pos = lines[1].find('t=')

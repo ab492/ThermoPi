@@ -17,4 +17,5 @@ The `temperature_metrics.py` script is set up to run via a Cron Job every hour. 
 - https://pimylifeup.com/raspberry-pi-temperature-sensor/
 
 ## To Do List
-Add error handing when POST call fails. Maybe it could send an email so I'm aware?
+- Add error handing when POST call fails. Maybe it could send an email so I'm aware?
+- Could also add email error handling when the sensor timesout too?

@@ -58,3 +58,10 @@ def read_temp() -> TemperatureInfo:
         temp_c = float(temp_string) / 1000.0
         temp_f = temp_c * 9.0 / 5.0 + 32.0
         return TemperatureInfo(celcius=temp_c, fahrenheit=temp_f)
+    
+if __name__ == "__main__":
+    try:
+        temperature_info = read_temp()
+        print(f"Temperature: {temperature_info.celcius}°C, {temperature_info.fahrenheit}°F")
+    except Exception as e:
+        print(f"Error reading temperature: {e}")

@@ -35,6 +35,9 @@ Here are some helpful commands:
 > sudo systemctl stop HAP-python
 ```
 
+### TODO  List
+- Add an offline override if using the temperature sensor in a main room.
+
 ## Temperature Logging (previously WeatherPi)
 This can only be tested with a DS18B20 installed via GPIO pins. It takes the temperature directly from the DS18B20 and sends it to an API (`api.bramblytech.co.uk`) which allows longer term tracking for data analysis, and for displaying current data on the Brambly iOS widget.
 
@@ -54,6 +57,6 @@ The `temperature_metrics.py` script is set up to run via a Cron Job every hour. 
 ### Useful Articles
 - https://pimylifeup.com/raspberry-pi-temperature-sensor/
 
-### To Do List
+### TODO List
 - Add error handing when POST call fails. Maybe it could send an email so I'm aware?
 - Could also add email error handling when the sensor timesout too?

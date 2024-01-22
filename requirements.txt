@@ -14,5 +14,6 @@ pycparser==2.21
 PyQRCode==1.2.1
 python-dotenv==1.0.0
 requests==2.31.0
+RPi.GPIO==0.7.1
 urllib3==2.1.0
 zeroconf==0.131.0

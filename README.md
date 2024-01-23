@@ -1,6 +1,6 @@
 # ThermoPi
 
-This is the code for `ThermoPi`, a smart home controller for all things temperature in my flat. It's designed to run on a Raspberry Pi. There are two core components to the code: the smart thermostat component and the temperature logging component. 
+This is the code for `ThermoPi`, a smart home controller for all things temperature in my flat. It's designed to run on a Raspberry Pi (Raspberry Pi 3 Model B Rev 1.2). There are two core components to the code: the smart thermostat component and the temperature logging component. 
 
 ## Smart Thermostat
 This is the WIP component and requires some setup on the Raspberry Pi as well as having this code installed.

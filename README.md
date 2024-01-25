@@ -2,6 +2,12 @@
 
 This is the code for `ThermoPi`, a smart home controller for all things temperature in my flat. It's designed to run on a Raspberry Pi (Raspberry Pi 3 Model B Rev 1.2). There are two core components to the code: the smart thermostat component and the temperature logging component. 
 
+## Getting Started
+1. Clone the repo.
+2. Run `python3 -m venv venv` to set up a virtual environment. If that doesn't work, run `sudo apt install python3-venv` to install `venv`.
+3. Run `source venv/bin/activate` to activate `venv`.
+4. Run `pip install -r requirements.txt` to install package dependencies.
+
 ## Smart Thermostat
 This is the WIP component and requires some setup on the Raspberry Pi as well as having this code installed.
 

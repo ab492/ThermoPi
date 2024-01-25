@@ -14,36 +14,46 @@ class TemperatureInfo(NamedTuple):
 base_dir = '/sys/bus/w1/devices/'
 
 # The '28' prefix is common for DS18B20 temperature sensors. Since we only have 1 sensor, we just grab the first.
-device_folder = glob.glob(base_dir + '28*')[0]
+try:
+    device_folder = glob.glob(base_dir + '28*')[0]
+except:
+    raise FileNotFoundError("No temperature sensor found; is it wired correctly?")
 
 # The 'w1_slave' is provided by 'w1-therm' module and contains the raw temperature data from the sensor.
 device_file = device_folder + '/w1_slave'
 
-def read_temp_raw():
-    f = open(device_file, 'r')
-    lines = f.readlines()
-    f.close()
-    return lines
-
+def _read_temp_raw():
+    try:
+        with open(device_file, 'r') as f:
+            lines = f.readlines()
+        return lines
+    except:
+        raise IOError(f"Failed to read device file; is the temperature sensor wired correctly?")
 
 def read_temp() -> TemperatureInfo:
     # The raw temperature comes over two lines in the following format:
     # 54 01 4b 46 7f ff 0c 10 fd : crc=fd YES
     # 54 01 4b 46 7f ff 0c 10 fd t=21250
-    lines = read_temp_raw()
+    lines = _read_temp_raw()
 
     max_attempts = 10
     attempts = 0
     
     # The first line is a checksum to indicate if the measurement is valid. 
     # If the line ends in 'YES', we can proceed. If 'NO', the sensor is not ready so we wait 0.2 seconds.
-    while lines[0].strip()[-3:] != 'YES':
+    while True:
+        try:
+            if lines[0].strip()[-3:] == 'YES':
+                break  # Exit loop if the condition is met
+            elif attempts >= max_attempts:
+                raise TimeoutError("Sensor read attempt exceeded maximum retries.")
+        except IndexError:
+            raise IndexError("Unexpected data format from sensor; is the temperature sensor wired correctly?")
+
         time.sleep(0.2)
         lines = read_temp_raw()
         attempts += 1
-        if attempts >= max_attempts:
-            raise TimeoutError("Sensor read attempt exceeded maximum retries.")
-    
+
     # Now we find the actual raw data by finding 't='.
     equals_pos = lines[1].find('t=')
 

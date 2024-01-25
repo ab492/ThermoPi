@@ -3,9 +3,25 @@ import glob
 import time
 from typing import NamedTuple
 
-# Two excellent articles about setting up the temperature sensor:
-# https://thepihut.com/blogs/raspberry-pi-tutorials/ds18b20-one-wire-digital-temperature-sensor-and-the-raspberry-pi
-# https://pimylifeup.com/raspberry-pi-temperature-sensor/ 
+"""
+This script allows you to read temperature data from a DS18B20 temperature sensor connected to a Raspberry Pi, return the temperature in celsius and fahrenheit.
+
+Prerequisites:
+- A Raspberry Pi with Raspbian OS installed.
+- A DS18B20 temperature sensor properly connected to the GPIO pins of the Raspberry Pi (see references).
+- The 1-Wire interface enabled on the Raspberry Pi.
+
+Configuration:
+Before running the script, ensure the Raspberry Pi is configured to interface with the DS18B20 sensor:
+1. Add the line 'dtoverlay=w1-gpio' to /boot/config.txt. This enables the 1-Wire interface on the GPIO pin used by the sensor.
+2. Add 'w1-gpio' and 'w1-thermo' to /etc/modules. This ensures that the necessary modules are loaded at boot.
+
+References:
+For more information on setting up and using the DS18B20 temperature sensor with a Raspberry Pi, visit:
+- https://thepihut.com/blogs/raspberry-pi-tutorials/ds18b20-one-wire-digital-temperature-sensor-and-the-raspberry-pi
+- https://pimylifeup.com/raspberry-pi-temperature-sensor/
+
+"""
 class TemperatureInfo(NamedTuple):
     celcius: float
     fahrenheit: float
@@ -16,7 +32,7 @@ base_dir = '/sys/bus/w1/devices/'
 # The '28' prefix is common for DS18B20 temperature sensors. Since we only have 1 sensor, we just grab the first.
 try:
     device_folder = glob.glob(base_dir + '28*')[0]
-except:
+except IndexError:
     raise FileNotFoundError("No temperature sensor found; is it wired correctly?")
 
 # The 'w1_slave' is provided by 'w1-therm' module and contains the raw temperature data from the sensor.

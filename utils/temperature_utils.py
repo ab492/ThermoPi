@@ -14,7 +14,7 @@ Prerequisites:
 Configuration:
 Before running the script, ensure the Raspberry Pi is configured to interface with the DS18B20 sensor:
 1. Add the line 'dtoverlay=w1-gpio' to /boot/config.txt. This enables the 1-Wire interface on the GPIO pin used by the sensor.
-2. Add 'w1-gpio' and 'w1-thermo' to /etc/modules. This ensures that the necessary modules are loaded at boot.
+2. Add 'w1-gpio' and 'w1-therm' to /etc/modules. This ensures that the necessary modules are loaded at boot.
 
 References:
 For more information on setting up and using the DS18B20 temperature sensor with a Raspberry Pi, visit:

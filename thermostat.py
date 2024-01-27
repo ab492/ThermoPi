@@ -64,7 +64,7 @@ if __name__ == "__main__":
     # Define the GPIO pin for the relay and the temperature threshold
     relay_pin = 26  # Example GPIO pin number
     thermostat = Thermostat(relay_pin)
-    thermostat.set_target_temperature(21)
+    thermostat.set_target_temperature(22.5)
     thermostat.start()
 
 

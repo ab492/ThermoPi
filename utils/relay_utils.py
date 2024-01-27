@@ -24,6 +24,3 @@ class Relay:
     def cleanup(self):
         GPIO.cleanup(self.pin)
         print("GPIO Cleaned up")
-
-
-    

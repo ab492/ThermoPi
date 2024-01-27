@@ -1,6 +1,6 @@
 # ThermoPi
 
-This is the code for `ThermoPi`, a smart home controller for all things temperature in my flat. It's designed to run on a Raspberry Pi (Raspberry Pi 3 Model B Rev 1.2). There are two core components to the code: the smart thermostat component and the temperature logging component. 
+This is the code for `ThermoPi`, a smart home controller for all things temperature in my flat. It's designed to run on a Raspberry Pi (Raspberry Pi 3 Model B Rev 1.2). 
 
 ## Getting Started
 1. Clone the repo.
@@ -8,8 +8,29 @@ This is the code for `ThermoPi`, a smart home controller for all things temperat
 3. Run `source venv/bin/activate` to activate `venv`.
 4. Run `pip install -r requirements.txt` to install package dependencies.
 
-## Smart Thermostat
-This is the WIP component and requires some setup on the Raspberry Pi as well as having this code installed.
+## Thermostat
+This is the core functionality of `ThermoPi` and is designed to work without an internet connection (local network required for access) and without the 'smart' elements like HomeKit integration and API tracking.
+
+### Installing The Temperature Sensor
+1. As sudo, add the following line to `/boot/config.txt`. This enables the 1-Wire interface on the GPIO pin used by the sensor. 
+```
+dtoverlay=w1-gpio
+```
+2. As sudo, add the following to `/etc/modules`. This ensures that the necessary modules are loaded at boot.
+```
+w1-gpio
+w1-therm
+```
+
+### Setting Up The Relay
+1. If you're using an unprivileged user, you'll need to run the following the grant permission to access the GPIO pins:
+```
+sudo adduser your-user gpio
+```
+
+---
+
+
 
 Currently this is a single HomeKit temperature sensor integration, run using `main.py` which uses `temperature_utils.py` to fetch the temperature. The core setup relies on [HAP-python](https://github.com/ikalchev/HAP-python), with a few of my own findings. First follow the HAP-python installation instructions and then use my notes.
 
@@ -62,6 +83,7 @@ The `temperature_metrics.py` script is set up to run via a Cron Job every hour. 
 
 ### Useful Articles
 - https://pimylifeup.com/raspberry-pi-temperature-sensor/
+- https://thepihut.com/blogs/raspberry-pi-tutorials/ds18b20-one-wire-digital-temperature-sensor-and-the-raspberry-pi
 
 ### TODO List
 - Add error handing when POST call fails. Maybe it could send an email so I'm aware?

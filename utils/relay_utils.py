@@ -6,7 +6,7 @@ class Relay:
     """
     def __init__(self, pin):
         self.pin = pin
-        GPIO.setmode(GPIO.BCM) # Refer to pins by their Broadcom SOC channel number (associated to Broadcome chipset on the Pi).
+        GPIO.setmode(GPIO.BCM) # Refer to pins by their Broadcom SOC channel number (associated to Broadcom chipset on the Pi).
         GPIO.setup(self.pin, GPIO.OUT, initial=GPIO.HIGH) # Initially OFF for ACTIVE LOW.
     
     @property

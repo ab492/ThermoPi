@@ -1,16 +1,17 @@
-from utils.relay_utils import Relay
-from utils.temperature_utils import read_temp
+from .relay import Relay
+from .temperature_utils import read_temp
 import time 
+# from hardware_controls.relay import Relay
 ## todo: check less than or equal is working
 ## add threshold measurements
 ## add unit tests!
 ## add note that all values are celcius
 
 class Thermostat:
-    def __init__(self, relay_pin):
-        self._heating_relay = Relay(relay_pin)
-        self._hysteresis = 0.5
-        
+    def __init__(self, relay: Relay, hysteresis=0.5):
+        self._heating_relay = relay
+        self._hysteresis = hysteresis
+                
     @property
     def current_temperature(self):
         current_temperature = read_temp()
@@ -56,7 +57,7 @@ class Thermostat:
 # Example usage
 if __name__ == "__main__":
     # Define the GPIO pin for the relay and the temperature threshold
-    relay_pin = 26
-    thermostat = Thermostat(relay_pin)
-    thermostat.set_target_temperature(22)
+    relay = Relay(26)
+    thermostat = Thermostat(relay)
+    thermostat.set_target_temperature(21)
     thermostat.start()

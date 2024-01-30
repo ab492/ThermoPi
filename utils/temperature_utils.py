@@ -67,7 +67,7 @@ def read_temp() -> TemperatureInfo:
             raise IndexError("Unexpected data format from sensor; is the temperature sensor wired correctly?")
 
         time.sleep(0.2)
-        lines = read_temp_raw()
+        lines = _read_temp_raw()
         attempts += 1
 
     # Now we find the actual raw data by finding 't='.

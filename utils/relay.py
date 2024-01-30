@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
+from .relay_protocol import RelayProtocol
 
-class Relay:
+class Relay(RelayProtocol):
     """
     A class to represent a relay controlled by Raspberry Pi. This is designed to work with an ACTIVE LOW relay (i.e. LOW turns the relay on).
     """
@@ -24,3 +25,6 @@ class Relay:
     def cleanup(self):
         GPIO.cleanup(self.pin)
         print("GPIO Cleaned up")
+
+if __name__ == "__main__":
+    print("OK!")

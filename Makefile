@@ -16,3 +16,5 @@ enable_thermostat_at_boot:
 disable_thermostat_at_boot:
 	sudo systemctl disable thermostat.service
 
+run_tests:
+	python -m unittest discover -s tests

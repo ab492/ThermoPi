@@ -1,16 +1,29 @@
 from .relay import Relay
 from .temperature_utils import read_temp
 import time 
-# from hardware_controls.relay import Relay
-## todo: check less than or equal is working
-## add threshold measurements
-## add unit tests!
-## add note that all values are celcius
 
 class Thermostat:
-    def __init__(self, relay: Relay, hysteresis=0.5):
+    """
+    Controls a heating system through a relay based on current and target temperatures,
+    maintaining the desired environment within a hysteresis range.
+    
+    Note: All temperature is handled in celcius.
+
+    Attributes:
+        _heating_relay (Relay): Relay object controlling the heating element.
+        _target_temperature (float): Desired temperature in Celsius. Defaults to 20.0°C.
+        _hysteresis (float): Temperature leeway in determining when to activate/deactivate the relay.
+
+    Methods:
+        set_target_temperature(temperature): Sets a new target temperature.
+        start(): Initiates the thermostat control loop.
+        stop(): Terminates the control loop and performs cleanup.
+    """
+    
+    def __init__(self, relay: Relay, target_temperature: float = 20.0):
         self._heating_relay = relay
-        self._hysteresis = hysteresis
+        self._target_temperature = 20.0
+        self._hysteresis = 0.5
                 
     @property
     def current_temperature(self):
@@ -23,6 +36,7 @@ class Thermostat:
     
     @property
     def is_active(self):
+        """Boolean indicating if the relay (and thus the heating element) is active."""
         return self._heating_relay.is_active
     
     def set_target_temperature(self, temperature):

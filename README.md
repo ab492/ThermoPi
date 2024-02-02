@@ -28,9 +28,10 @@ w1-therm
 sudo adduser your-user gpio
 ```
 
+## HomeKit Integration
+https://github.com/ikalchev/HAP-python
+
 ---
-
-
 
 Currently this is a single HomeKit temperature sensor integration, run using `main.py` which uses `temperature_utils.py` to fetch the temperature. The core setup relies on [HAP-python](https://github.com/ikalchev/HAP-python), with a few of my own findings. First follow the HAP-python installation instructions and then use my notes.
 

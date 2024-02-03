@@ -24,6 +24,7 @@ class Thermostat:
         self._heating_relay = relay
         self._target_temperature = 20.0
         self._hysteresis = 0.5
+        self._temperature_did_change_notification = None
                 
     @property
     def current_temperature(self):
@@ -52,15 +53,19 @@ class Thermostat:
             print("Terminating the thermostat control.")
         finally:
             self.stop()
+            
+    def register_for_temperature_did_change_notifcation(self, callback):
+        self._temperature_did_change_notification = callback
         
     def _check_and_control_temperature(self):
         print(f"Current temp: {self.current_temperature}")
+        self._temperature_did_change_notification(self.current_temperature)
         if not self.is_active and self.current_temperature < (self.target_temperature - self._hysteresis):
             print(f"Current temperature ({self.current_temperature}°C) below target temperature ({self.target_temperature}°C). Turning thermostat ON.")
-            self._heating_relay.turn_on()
+            # self._heating_relay.turn_on()
         elif self.is_active and self.current_temperature > (self.target_temperature + self._hysteresis):
             print(f"Current temperature ({self.current_temperature}°C) above target temperature ({self.target_temperature}°C). Turning thermostat OFF.")
-            self._heating_relay.turn_off()
+            # self._heating_relay.turn_off()
   
     def stop(self):
         self._cleanup()

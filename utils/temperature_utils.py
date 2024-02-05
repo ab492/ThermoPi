@@ -1,6 +1,6 @@
 import os
 import glob
-import time
+import asyncio
 from typing import NamedTuple
 
 """
@@ -38,19 +38,20 @@ except IndexError:
 # The 'w1_slave' is provided by 'w1-therm' module and contains the raw temperature data from the sensor.
 device_file = device_folder + '/w1_slave'
 
-def _read_temp_raw():
+async def _read_temp_raw():
     try:
-        with open(device_file, 'r') as f:
-            lines = f.readlines()
+        # Open is not natively async, so we use 'asyncio' to run it in a threadpool
+        with await asyncio.to_thread(open, device_file, 'r') as f:
+            lines = await asyncio.to_thread(f.readlines)
         return lines
-    except:
-        raise IOError(f"Failed to read device file; is the temperature sensor wired correctly?")
+    except Exception as e:  # It's good practice to specify the exception
+        raise IOError(f"Failed to read device file; is the temperature sensor wired correctly? Error: {e}")
 
-def read_temp() -> TemperatureInfo:
+async def read_temp() -> TemperatureInfo:
     # The raw temperature comes over two lines in the following format:
     # 54 01 4b 46 7f ff 0c 10 fd : crc=fd YES
     # 54 01 4b 46 7f ff 0c 10 fd t=21250
-    lines = _read_temp_raw()
+    lines = await _read_temp_raw()
 
     max_attempts = 10
     attempts = 0
@@ -66,8 +67,8 @@ def read_temp() -> TemperatureInfo:
         except IndexError:
             raise IndexError("Unexpected data format from sensor; is the temperature sensor wired correctly?")
 
-        time.sleep(0.2)
-        lines = _read_temp_raw()
+        await asyncio.sleep(0.2)
+        lines = await _read_temp_raw()
         attempts += 1
 
     # Now we find the actual raw data by finding 't='.
@@ -80,9 +81,13 @@ def read_temp() -> TemperatureInfo:
         temp_f = temp_c * 9.0 / 5.0 + 32.0
         return TemperatureInfo(celcius=temp_c, fahrenheit=temp_f)
     
-if __name__ == "__main__":
+async def main():
     try:
-        temperature_info = read_temp()
+        temperature_info = await read_temp()
         print(f"Temperature: {temperature_info.celcius}°C, {temperature_info.fahrenheit}°F")
     except Exception as e:
         print(f"Error reading temperature: {e}")
+
+if __name__ == "__main__":
+    # asyncio.run() is used to run the main function, which handles the async call to read_temp
+    asyncio.run(main())

@@ -1,6 +1,7 @@
-from .relay import Relay
-from .temperature_utils import read_temp
+from relay import Relay
+from temperature_utils import read_temp
 import time 
+import asyncio
 
 class Thermostat:
     """
@@ -26,9 +27,8 @@ class Thermostat:
         self._hysteresis = 0.5
         self._temperature_did_change_notification = None
                 
-    @property
-    def current_temperature(self):
-        current_temperature = read_temp()
+    async def current_temperature(self):
+        current_temperature = await read_temp()
         return current_temperature.celcius
     
     @property
@@ -43,40 +43,45 @@ class Thermostat:
     def set_target_temperature(self, temperature):
         self._target_temperature = temperature
         
-    def start(self):
+    async def start(self):
         try:
             # Continuously check and control the temperature
             while True:
-                self._check_and_control_temperature()
-                time.sleep(3)  # Wait for 3 seconds before checking again
+                await self._check_and_control_temperature()
+                await asyncio.sleep(3)  # Non-blocking wait
         except KeyboardInterrupt:
             print("Terminating the thermostat control.")
         finally:
-            self.stop()
-            
+            await self.stop()
+                        
     def register_for_temperature_did_change_notifcation(self, callback):
         self._temperature_did_change_notification = callback
         
-    def _check_and_control_temperature(self):
-        print(f"Current temp: {self.current_temperature}")
-        self._temperature_did_change_notification(self.current_temperature)
-        if not self.is_active and self.current_temperature < (self.target_temperature - self._hysteresis):
-            print(f"Current temperature ({self.current_temperature}°C) below target temperature ({self.target_temperature}°C). Turning thermostat ON.")
-            # self._heating_relay.turn_on()
-        elif self.is_active and self.current_temperature > (self.target_temperature + self._hysteresis):
-            print(f"Current temperature ({self.current_temperature}°C) above target temperature ({self.target_temperature}°C). Turning thermostat OFF.")
-            # self._heating_relay.turn_off()
+    async def _check_and_control_temperature(self):
+        current_temperature = await self.current_temperature()
+        # self._temperature_did_change_notification(self.current_temperature)
+       
+        if not self.is_active and current_temperature < (self.target_temperature - self._hysteresis):
+            print(f"Current temperature ({current_temperature}°C) below target temperature ({target_temperature}°C). Turning thermostat ON.")
+            self._heating_relay.turn_on()
+        elif self.is_active and current_temperature > (self.target_temperature + self._hysteresis):
+            print(f"Current temperature ({current_temperature}°C) above target temperature ({target_temperature}°C). Turning thermostat OFF.")
+            self._heating_relay.turn_off()
+        else:
+            print("NOTHING TO SEE HERE!")
   
-    def stop(self):
+    async def stop(self):
         self._cleanup()
         
     def _cleanup(self):
         self._heating_relay.cleanup()
         
 # Example usage
-if __name__ == "__main__":
-    # Define the GPIO pin for the relay and the temperature threshold
+async def main():
     relay = Relay(26)
     thermostat = Thermostat(relay)
-    thermostat.set_target_temperature(21)
-    thermostat.start()
+    thermostat.set_target_temperature(18)
+    await thermostat.start()
+
+if __name__ == "__main__":
+    asyncio.run(main())

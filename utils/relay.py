@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-from .relay_protocol import RelayProtocol
+from relay_protocol import RelayProtocol
 
 class Relay(RelayProtocol):
     """

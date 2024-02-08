@@ -57,7 +57,9 @@ class Thermostat:
         
     async def _check_and_control_temperature(self):
         current_temperature = await self.current_temperature()
-        # self._temperature_did_change_notification(self.current_temperature)
+
+        if self._temperature_did_change_notification:
+            self._temperature_did_change_notification(current_temperature)
        
         if not self.is_active and current_temperature < (self.target_temperature - self._hysteresis):
             print(f"Current temperature ({current_temperature}°C) below target temperature ({self.target_temperature}°C). Turning thermostat ON.")

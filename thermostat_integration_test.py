@@ -17,6 +17,11 @@ class ThermostatController:
         self.loop = loop
         self.temperature_sensor = DummySensor()
         
+        self.relay = Relay(pin=26)
+        self.thermostat = Thermostat(self.relay)
+        self.target_temperature = 21
+        self.thermostat.register_for_temperature_did_change_notifcation(self.thermostat_temperature_did_change)
+        
         self.driver = AccessoryDriver(port=51826, loop=self.loop)
         self.homekit_thermostat = HKThermostat(self.driver, "THERMOBOY")
         self.driver.add_accessory(accessory=self.homekit_thermostat)
@@ -24,12 +29,18 @@ class ThermostatController:
 
     async def start_thermostat(self):
         print("Starting thermostat...")
+        await self.thermostat.start()
         await self.driver.async_start()
         
         while True:
             temperature = await self.temperature_sensor.get_temperature()
             self.homekit_thermostat.set_current_temperature(temperature)
             await asyncio.sleep(3)  # Wait for 3 seconds before the next cycle
+            
+    def thermostat_temperature_did_change(self, new_temperature):
+        print(f"New temperature: {new_temperature}")
+        # self.homekit_thermostat.set_current_temperature(new_temperature)
+        
         
 async def main(loop):
     parser = argparse.ArgumentParser(description="Thermostat Control Script")

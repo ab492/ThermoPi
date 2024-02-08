@@ -1,5 +1,5 @@
-from relay import Relay
-from temperature_utils import read_temp
+from .relay import Relay
+from .temperature_utils import read_temp
 import time 
 import asyncio
 
@@ -44,15 +44,13 @@ class Thermostat:
         self._target_temperature = temperature
         
     async def start(self):
-        try:
-            # Continuously check and control the temperature
-            while True:
-                await self._check_and_control_temperature()
-                await asyncio.sleep(3)  # Non-blocking wait
-        except KeyboardInterrupt:
-            print("Terminating the thermostat control.")
-        finally:
-            await self.stop()
+        # Perform initial setup and then return
+        asyncio.create_task(self.control_loop())  # This now runs concurrently
+    
+    async def control_loop(self):
+        while True:
+            await self._check_and_control_temperature()
+            await asyncio.sleep(3)
                         
     def register_for_temperature_did_change_notifcation(self, callback):
         self._temperature_did_change_notification = callback
@@ -62,11 +60,11 @@ class Thermostat:
         # self._temperature_did_change_notification(self.current_temperature)
        
         if not self.is_active and current_temperature < (self.target_temperature - self._hysteresis):
-            print(f"Current temperature ({current_temperature}°C) below target temperature ({target_temperature}°C). Turning thermostat ON.")
-            self._heating_relay.turn_on()
+            print(f"Current temperature ({current_temperature}°C) below target temperature ({self.target_temperature}°C). Turning thermostat ON.")
+            # self._heating_relay.turn_on()
         elif self.is_active and current_temperature > (self.target_temperature + self._hysteresis):
-            print(f"Current temperature ({current_temperature}°C) above target temperature ({target_temperature}°C). Turning thermostat OFF.")
-            self._heating_relay.turn_off()
+            print(f"Current temperature ({current_temperature}°C) above target temperature ({self.target_temperature}°C). Turning thermostat OFF.")
+            # self._heating_relay.turn_off()
         else:
             print("NOTHING TO SEE HERE!")
   

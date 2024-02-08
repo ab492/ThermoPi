@@ -1,6 +1,6 @@
 import logging
 import signal
-
+import asyncio
 from pyhap.accessory import Accessory
 from pyhap.accessory_driver import AccessoryDriver
 from pyhap.const import CATEGORY_THERMOSTAT
@@ -10,7 +10,7 @@ from enum import Enum, unique
 logging.basicConfig(level=logging.INFO, format="[%(module)s] %(message)s")
 
 ## Wraps the HomeKit functionality directly.
-class Thermostat(Accessory):
+class HKThermostat(Accessory):
     category = CATEGORY_THERMOSTAT
     
     def __init__(self, *args, **kwargs):
@@ -36,12 +36,14 @@ class Thermostat(Accessory):
         self.curent_temperature.set_value(value)    
     
     def set_target_temperature(self, value):
-        if self.target_temperature_did_change_callback:
-            self.target_temperature_did_change_callback(value)
+        print("SET TARGET")
+        # if self.target_temperature_did_change_callback:
+        #     self.target_temperature_did_change_callback(value)
 
     def set_target_heating_cooling_state(self, value):
-        if self.target_heating_cooling_state_did_change_callback:
-            self.target_heating_cooling_state_did_change_callback(value)
+        print("SET")
+        # if self.target_heating_cooling_state_did_change_callback:
+        #     self.target_heating_cooling_state_did_change_callback(value)
             
 
         

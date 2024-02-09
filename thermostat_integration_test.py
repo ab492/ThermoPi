@@ -26,21 +26,39 @@ class ThermostatController:
         self.homekit_thermostat = HKThermostat(self.driver, "THERMOBOY")
         self.driver.add_accessory(accessory=self.homekit_thermostat)
         signal.signal(signal.SIGTERM, self.driver.signal_handler)
+        
+        self.tasks = []  # Store references to tasks
+
 
     async def start_thermostat(self):
         print("Starting thermostat...")
-        await self.thermostat.start()
-        await self.driver.async_start()
+        # await self.thermostat.start()
+        # await self.driver.async_start()
         
-        while True:
-            temperature = await self.temperature_sensor.get_temperature()
-            self.homekit_thermostat.set_current_temperature(temperature)
-            await asyncio.sleep(3)  # Wait for 3 seconds before the next cycle
+        thermostat_task = asyncio.create_task(self.thermostat.start())
+        self.tasks.append(thermostat_task)  # Store task reference
+        
+        driver_task = asyncio.create_task(self.driver.async_start())
+        self.tasks.append(driver_task)  # Store task reference
+        
+        # while True:
+        #     temperature = await self.temperature_sensor.get_temperature()
+        #     self.homekit_thermostat.set_current_temperature(temperature)
+        #     await asyncio.sleep(3)  # Wait for 3 seconds before the next cycle
             
     def thermostat_temperature_did_change(self, new_temperature):
         print(f"New temperature: {new_temperature}")
-        # self.homekit_thermostat.set_current_temperature(new_temperature)
-        
+        self.homekit_thermostat.set_current_temperature(new_temperature)
+    
+    async def stop_thermostat(self):
+        print("Stopping thermostat...")
+        for task in self.tasks:
+            task.cancel()  # Cancel each task
+            try:
+                await task  # Wait for the task to be cancelled
+            except asyncio.CancelledError:
+                pass  # Task cancellation is expected, so we can ignore this exception
+
         
 async def main(loop):
     parser = argparse.ArgumentParser(description="Thermostat Control Script")
@@ -57,8 +75,17 @@ async def main(loop):
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
+    
+    # loop = asyncio.get_event_loop()
+
+    # Set up the controller
+    controller = ThermostatController(loop)
 
     try:
-        loop.run_until_complete(main(loop))
+        loop.run_until_complete(controller.start_thermostat())
+        loop.run_forever()  # Keep the loop running
+    except KeyboardInterrupt:
+        pass  # Handle keyboard interrupt
     finally:
+        loop.run_until_complete(controller.stop_thermostat())  # Ensure everything is stopped properly
         loop.close()

@@ -6,49 +6,43 @@ from homekit_thermostat import HKThermostat
 import time
 from pyhap.accessory_driver import AccessoryDriver
 import signal
+from enum import Enum, unique
 
-class DummySensor:
-    async def get_temperature(self):
-        await asyncio.sleep(3)  # Simulate a delay in getting the temperature
-        return 22.5  # Return a dummy temperature
-    
 class ThermostatController:
     def __init__(self, loop):
         self.loop = loop
-        self.temperature_sensor = DummySensor()
-        
+        self.tasks = []  # Store references to for long running taskes
+
+        # Setup thermostat
         self.relay = Relay(pin=26)
         self.thermostat = Thermostat(self.relay)
         self.target_temperature = 21
         self.thermostat.register_for_temperature_did_change_notifcation(self.thermostat_temperature_did_change)
         
+        # Setup HomeKit integration
         self.driver = AccessoryDriver(port=51826, loop=self.loop)
         self.homekit_thermostat = HKThermostat(self.driver, "THERMOBOY")
+        self.homekit_thermostat.register_for_heating_cooling_state_did_change_notifications(self.heating_cooling_state_did_change)
+        self.homekit_thermostat.register_for_target_temperature_did_change_notifications(self.target_temperature_did_change)
         self.driver.add_accessory(accessory=self.homekit_thermostat)
         signal.signal(signal.SIGTERM, self.driver.signal_handler)
         
-        self.tasks = []  # Store references to tasks
-
-
     async def start_thermostat(self):
         print("Starting thermostat...")
-        # await self.thermostat.start()
-        # await self.driver.async_start()
-        
         thermostat_task = asyncio.create_task(self.thermostat.start())
-        self.tasks.append(thermostat_task)  # Store task reference
+        self.tasks.append(thermostat_task)
         
+        print("Starting HomeKit integration...")
         driver_task = asyncio.create_task(self.driver.async_start())
-        self.tasks.append(driver_task)  # Store task reference
+        self.tasks.append(driver_task) 
         
-        # while True:
-        #     temperature = await self.temperature_sensor.get_temperature()
-        #     self.homekit_thermostat.set_current_temperature(temperature)
-        #     await asyncio.sleep(3)  # Wait for 3 seconds before the next cycle
-            
     def thermostat_temperature_did_change(self, new_temperature):
         print(f"New temperature: {new_temperature}")
         self.homekit_thermostat.set_current_temperature(new_temperature)
+        
+    def target_temperature_did_change(self, new_temperature):
+        print(f"Target temperature did change: {new_temperature}")
+        self.thermostat.set_target_temperature(new_temperature)
     
     async def stop_thermostat(self):
         print("Stopping thermostat...")
@@ -58,6 +52,11 @@ class ThermostatController:
                 await task  # Wait for the task to be cancelled
             except asyncio.CancelledError:
                 pass  # Task cancellation is expected, so we can ignore this exception
+            
+    def heating_cooling_state_did_change(self, new_state):
+        if new_state == TargetHeatingCoolingState.OFF {
+            thermostat.stop()
+        }
 
         
 async def main(loop):

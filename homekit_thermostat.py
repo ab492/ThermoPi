@@ -9,6 +9,13 @@ from enum import Enum, unique
 
 logging.basicConfig(level=logging.INFO, format="[%(module)s] %(message)s")
 
+@unique
+class TargetHeatingCoolingState(Enum):
+    OFF = 0 
+    HEAT = 1 # Set the thermostat to heat to the target temperature.
+    COOL = 2 # Set the thermostat to cool to the target temperature.
+    AUTO = 3 # The thermostat automatically heats or cools to maintain the target temberature.
+    
 ## Wraps the HomeKit functionality directly.
 class HKThermostat(Accessory):
     category = CATEGORY_THERMOSTAT
@@ -24,6 +31,7 @@ class HKThermostat(Accessory):
         self.target_temperature = thermostat_service.configure_char('TargetTemperature', setter_callback=self.set_target_temperature)
         self.temperature_units = thermostat_service.configure_char('TemperatureDisplayUnits')
         
+        
         self.target_heating_cooling_state_did_change_callback = None
         self.target_temperature_did_change_callback = None
 
@@ -36,15 +44,19 @@ class HKThermostat(Accessory):
         self.curent_temperature.set_value(value)    
     
     def set_target_temperature(self, value):
-        print("SET TARGET")
-        # if self.target_temperature_did_change_callback:
-        #     self.target_temperature_did_change_callback(value)
-
-    def set_target_heating_cooling_state(self, value):
-        print("SET")
-        # if self.target_heating_cooling_state_did_change_callback:
-        #     self.target_heating_cooling_state_did_change_callback(value)
+        if self.target_temperature_did_change_callback is not None:
+            self.target_temperature_did_change_callback(value)
             
+    def register_for_target_temperature_did_change_notifications(self, callback):
+        self.target_temperature_did_change_callback = callback
+
+    def register_for_heating_cooling_state_did_change_notifications(self, callback):
+        self.target_heating_cooling_state_did_change_callback = callback
+
+    def set_target_heating_cooling_state(self, new_state):
+        if self.target_heating_cooling_state_did_change_callback is not None:
+            state_enum = TargetHeatingCoolingState(new_state)
+            self.target_heating_cooling_state_did_change_callback(state_enum)
 
         
 # def get_accessory(driver):
@@ -56,12 +68,7 @@ class HKThermostat(Accessory):
 # signal.signal(signal.SIGTERM, driver.signal_handler)
 # driver.start()
 
-@unique
-class TargetHeatingCoolingState(Enum):
-    OFF = 0 
-    HEAT = 1 # Set the thermostat to heat to the target temperature.
-    COOL = 2 # Set the thermostat to cool to the target temperature.
-    AUTO = 3 # The thermostat automatically heats or cools to maintain the target temberature.
+
 
 class HomeKitThermostat:
     def __init__(self, name: str):

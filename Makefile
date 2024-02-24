@@ -10,6 +10,9 @@ start_thermostat:
 stop_thermostat:
 	sudo systemctl stop thermostat.service
 
+thermostat_startup_logs:
+	sudo journalctl -u thermostat.service -e
+
 enable_thermostat_at_boot:
 	sudo systemctl enable thermostat.service
 

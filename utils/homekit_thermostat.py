@@ -1,12 +1,8 @@
 import logging
-import signal
-import asyncio
 from pyhap.accessory import Accessory
 from pyhap.accessory_driver import AccessoryDriver
 from pyhap.const import CATEGORY_THERMOSTAT
 from enum import Enum, unique
-
-logging.basicConfig(level=logging.INFO, format="[%(module)s] %(message)s")
 
 @unique
 class TargetHeatingCoolingState(Enum):
@@ -21,14 +17,15 @@ class HKThermostat(Accessory):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._logger = logging.getLogger(__name__)
         
         # Characteristic options from services.json
         thermostat_service = self.add_preload_service('Thermostat')
         self._current_heating_cooling_state = thermostat_service.configure_char('CurrentHeatingCoolingState') 
-        self._target_heating_cooling_state = thermostat_service.configure_char('TargetHeatingCoolingState', setter_callback=self.set_target_heating_cooling_state) 
-        self._curent_temperature = thermostat_service.configure_char('CurrentTemperature')
-        self._target_temperature = thermostat_service.configure_char('TargetTemperature', setter_callback=self.set_target_temperature)
-        self._temperature_units = thermostat_service.configure_char('TemperatureDisplayUnits') # Can this be forced to only C?!
+        self._target_heating_cooling_state = thermostat_service.configure_char('TargetHeatingCoolingState', setter_callback=self._did_set_target_heating_cooling_state) 
+        self._current_temperature = thermostat_service.configure_char('CurrentTemperature')
+        self._target_temperature = thermostat_service.configure_char('TargetTemperature', setter_callback=self._did_set_target_temperature)
+        self._temperature_units = thermostat_service.configure_char('TemperatureDisplayUnits')
         self._target_heating_cooling_state_did_change_callback = None
         self._target_temperature_did_change_callback = None
     
@@ -44,19 +41,23 @@ class HKThermostat(Accessory):
         return TargetHeatingCoolingState(current_state)
     
     def set_current_temperature(self, value):
-        self._curent_temperature.set_value(value)    
-    
-    def set_target_temperature(self, value):
-        if self._target_temperature_did_change_callback is not None:
-            self._target_temperature_did_change_callback(value)
+        """Sets the current temperature in the HomeKit app."""
+        self._current_temperature.set_value(value)
+        self._logger.info("HomeKit current temperature did change to: %s°C.", value)
             
     def register_for_target_temperature_did_change_notifications(self, callback):
+        """Registers for notifications about target temperature changing in HomeKit."""
         self._target_temperature_did_change_callback = callback
 
     def register_for_heating_cooling_state_did_change_notifications(self, callback):
+        """Registers for notifications about the heating/cooling state changing in HomeKit."""
         self._target_heating_cooling_state_did_change_callback = callback
+        
+    def _did_set_target_temperature(self, value):
+        if self._target_temperature_did_change_callback is not None:
+            self._target_temperature_did_change_callback(value)
 
-    def set_target_heating_cooling_state(self, new_state):
+    def _did_set_target_heating_cooling_state(self, new_state):
         if self._target_heating_cooling_state_did_change_callback is not None:
             state_enum = TargetHeatingCoolingState(new_state)
             self._target_heating_cooling_state_did_change_callback(state_enum)

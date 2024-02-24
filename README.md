@@ -29,15 +29,21 @@ sudo adduser your-user gpio
 ```
 
 ## HomeKit Integration
-https://github.com/ikalchev/HAP-python
+I used [HAP-python](https://github.com/ikalchev/HAP-python) for my HomeKit integration.
+
+Whilst developing with `HAP-python`, here are a few discoveries I made that might be useful in future debugging. These notes have been incorporated into the system, but I'm keeping them here for the record.
+
+1. Use an unprivaledged user when running this startup script. 
+2. Don't bother using "Wait for network" or their suggested fix: I couldn't get either working. I ended up using a 30 second wait, but this might be worth re-assessing in the future.
+3. Initially I got errors about accessing temporary files; I believe this was linked to setting relative paths within my Python scripts. Adding `WorkingDirectory=/home/developer/ThermoPi` seemed to help the service run without errors.
 
 ---
 
-Currently this is a single HomeKit temperature sensor integration, run using `main.py` which uses `temperature_utils.py` to fetch the temperature. The core setup relies on [HAP-python](https://github.com/ikalchev/HAP-python), with a few of my own findings. First follow the HAP-python installation instructions and then use my notes.
 
-1. Definitely create a 'lesserdaemon' user with write access to this repository. I tried using my admin user and kept getting errors about writing a temporary folder. This error only occurred when running the `HAP-python.service`, not directly running `main.py`.
-2. Don't bother using "Wait for network" or their suggested fix: I couldn't get either working. I ended up using a 30 second wait, but this might be worth re-assessing in the future.
-3. After some debugging, adding `WorkingDirectory=/home/lesserdaemon/WeatherPi` seemed to help the service run without errors.
+
+
+
+
 
 ```
 [Unit]

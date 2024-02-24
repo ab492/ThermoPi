@@ -1,15 +1,13 @@
 [Unit]
-Description = Thermostat daemon
-# GPIO is required for the script, however this is usually initialized early in the process they'll already be on. However, it's good practice to wait for the basic system initialization to complete.
+Description=ThermoPi Thermostat
+# GPIO is required for the script, however this is usually initialized early in the process they'll already be on. However, it's good practice to wait for the basic system initialization to c>
 After=multi-user.target
 
 [Service]
-WorkingDirectory=/home/lesserdaemon/WeatherPi
-User = root
-StandardOutput=inherit
-StandardError=inherit
-# Could add something about restarting but need proper logging and error handling first!
-ExecStart = /home/lesserdaemon/WeatherPi/venv/bin/python3 /home/lesserdaemon/WeatherPi/thermostat.py
+Type=simple
+WorkingDirectory=/home/developer/ThermoPi
+User=developer
+ExecStart = /home/developer/ThermoPi/venv/bin/python3 /home/developer/ThermoPi/smart_thermostat.py
 
 [Install]
 WantedBy = multi-user.target

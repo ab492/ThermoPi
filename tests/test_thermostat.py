@@ -4,6 +4,8 @@ from utils.thermostat import Thermostat
 from utils.temperature_utils import TemperatureInfo
 from mocks.mock_relay import MockRelay
 
+# NOTE: These tests were written pre-conversion to asyncio, so need rewriting at some point! 
+
 # WARNING: Read the comment on test_current_temperature_is_reported_correctly regarding patches. It'll save headaches when writing additional tests.
 class ThermostatTests(unittest.TestCase):
     

@@ -11,7 +11,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-class ThermostatController:
+class SmartThermostat:
     """
     Sets up a smart thermostat. The key purpose is to coordinate between the 'dumb' thermostat (`thermostat.py`) and the HomeKit integration (`homekit_thermostat.py`).
     
@@ -25,7 +25,6 @@ class ThermostatController:
     Methods:
         set_target_temperature_celcius(temperature): Sets a new target temperature.
         start(): Starts the control loop in an asynchronous task to monitor and control temperature.
-        stop(): Terminates the thermostat control loop if it's running.
         register_for_temperature_did_change_notification(callback): Registers a callback to be invoked with the latest temperature reading.
         start_monitoring_current_temperature(): If you've registed for notifcations, this starts the observation process for current temperature.
         shutdown(): Performs cleanup actions, particularly for GPIO resources used by the relay. Once shutdown has been called, you cannot restart.
@@ -59,12 +58,12 @@ class ThermostatController:
         self.driver_task = asyncio.create_task(self.driver.async_start())  
         await self.thermostat.start_monitoring_current_temperature()
         
-    async def stop_thermostat(self):
-        self._logger.info("Stopping thermostat...")
+    async def shutdown(self):
+        self._logger.info("Shutting down thermostat...")
 
       # Cancel and await the thermostat task if it exists
         await self._cancel_and_await_task(self.thermostat_task, "Thermostat")
-        self.thermostat.shutdown()
+        await self.thermostat.shutdown()
         self.thermostat_task = None  # Reset the task to None after cancellation
             
         # Cancel and await the driver task if it exists
@@ -114,24 +113,10 @@ class ThermostatController:
             except Exception as e:
                 self._logger.error(f"Error stopping {task_name} task: {e}", exc_info=True)
                 
-               
-async def main(loop):
-    parser = argparse.ArgumentParser(description="Thermostat Control Script")
-    parser.add_argument('--start', action='store_true', help="Start the thermostat")
-    parser.add_argument('--stop', action='store_true', help="Stop the thermostat")  # Added line for --stop argument
-
-    args = parser.parse_args()
-    controller = ThermostatController(loop)
-
-    if args.start:
-        await controller.start_thermostat()
-    elif args.stop:
-        await controller.stop_thermostat()
-
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop) # This sets the global event loop and prevents clashing between HAP-Python asyncio.
-    controller = ThermostatController(loop)
+    controller = SmartThermostat(loop)
 
     try:
         loop.run_until_complete(controller.start_thermostat())
@@ -143,5 +128,5 @@ if __name__ == "__main__":
         logging.error(f"Unexpected error: {e}", exc_info=True)  # Log the error with stack trace
     finally:
         logging.info("Shutting down gracefully...")
-        loop.run_until_complete(controller.stop_thermostat())  # Ensure everything is stopped properly
+        loop.run_until_complete(controller.shutdown())  # Ensure everything is stopped properly
         loop.close()

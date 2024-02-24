@@ -27,4 +27,16 @@ class Relay(RelayProtocol):
         print("GPIO Cleaned up")
 
 if __name__ == "__main__":
-    print("OK!")
+    pin_number = 17  # Example GPIO pin number, change this to your actual relay GPIO pin
+    relay = Relay(pin_number)
+
+    try:
+        print("Turning relay ON...")
+        relay.turn_on()
+
+        # Keeping the relay ON for a certain duration to observe the change, for example, 5 seconds
+        input("Press Enter to continue...")  # Wait for user input to proceed (or use time.sleep(5) to wait for 5 seconds)
+
+    finally:
+        # It's important to clean up GPIO settings to ensure the GPIO pins are reset properly when the script ends
+        relay.cleanup()

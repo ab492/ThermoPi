@@ -3,6 +3,7 @@ import asyncio
 from utils.thermostat import Thermostat
 from utils.relay import Relay
 from utils.homekit_thermostat import HKThermostat, TargetHeatingCoolingState
+from utils.data_logger import DataLogger
 import time
 from pyhap.accessory_driver import AccessoryDriver
 import signal
@@ -51,12 +52,20 @@ class SmartThermostat:
         self.driver.add_accessory(accessory=self.homekit_thermostat)
         signal.signal(signal.SIGTERM, self.driver.signal_handler)
         
+        self.data_logger = DataLogger()
+        
     # Public Methods
         
     async def start_thermostat(self):
         self._logger.info("Starting HomeKit integration...")
         self.driver_task = asyncio.create_task(self.driver.async_start())  
         await self.thermostat.start_monitoring_current_temperature()
+        
+        self.data_logger.set_temperature_callback(self.thermostat.current_temperature_celcius)
+        self.data_logger.set_target_temperature_callback(self.thermostat.target_temperature_celcius)
+        self.data_logger.set_state_callback(self.thermostat.is_active)
+        await self.data_logger.log_data_periodically()
+        
         
     async def shutdown(self):
         self._logger.info("Shutting down thermostat...")

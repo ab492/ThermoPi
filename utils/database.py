@@ -37,5 +37,3 @@ def insert_temperature_log(zone, indoor_temp, outdoor_temp, heating_status, targ
     conn.commit()
     cur.close()
     conn.close()
-    
-insert_temperature_log(3, 20.1, 17.4, True, 20.5)

@@ -52,7 +52,7 @@ class SmartThermostat:
         self.driver.add_accessory(accessory=self.homekit_thermostat)
         signal.signal(signal.SIGTERM, self.driver.signal_handler)
         
-        self.data_logger = DataLogger()
+        self.data_logger = DataLogger(zone=3)
         
     # Public Methods
         
@@ -63,7 +63,7 @@ class SmartThermostat:
         
         self.data_logger.set_temperature_callback(self.thermostat.current_temperature_celcius)
         self.data_logger.set_target_temperature_callback(self.thermostat.target_temperature_celcius)
-        self.data_logger.set_state_callback(self.thermostat.is_active)
+        self.data_logger.set_is_active_callback(self.thermostat.is_active)
         await self.data_logger.log_data_periodically()
         
         

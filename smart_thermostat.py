@@ -25,7 +25,7 @@ class SmartThermostat:
 
     Methods:
         set_target_temperature_celcius(temperature): Sets a new target temperature.
-        start(): Starts the control loop in an asynchronous task to monitor and control temperature.
+        start_thermostat(): Starts the control loop in an asynchronous task to monitor and control temperature.
         register_for_temperature_did_change_notification(callback): Registers a callback to be invoked with the latest temperature reading.
         start_monitoring_current_temperature(): If you've registed for notifcations, this starts the observation process for current temperature.
         shutdown(): Performs cleanup actions, particularly for GPIO resources used by the relay. Once shutdown has been called, you cannot restart.

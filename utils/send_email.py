@@ -6,9 +6,9 @@ import os
 
 # Load environment variables from .env file
 load_dotenv()
-personal_email = os.getenv("PERSONAL_EMAIL")
+to_email = os.getenv("PERSONAL_EMAIL")
 
-def send_email(subject, body, to_email):
+def send_email(subject, body):
     from_email = os.getenv("THERMOPI_EMAIL_ACCOUNT")
     app_password = os.getenv("THERMOPI_EMAIL_ACCOUNT_APP_PASSWORD")
 
@@ -29,4 +29,4 @@ def send_email(subject, body, to_email):
         print(f"Failed to send email: {e}")
 
 # Example usage
-send_email("Hello from Python", "<h1>This is a test email sent from Python!</h1>", personal_email)
+# send_email("Hello from Python", "<h1>This is a test email sent from Python!</h1>")

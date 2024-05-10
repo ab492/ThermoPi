@@ -5,6 +5,23 @@ from .error_reporter import ErrorReporter
 import logging
 
 class DataLogger:
+    """
+    A class for logging temperature data periodically to a database.
+    
+    Attributes:
+        _zone (int): The heating zone identifier for which data is logged.
+        _temperature_callback (callable): A callback function that returns the current indoor temperature.
+        _target_temperature_callback (callable): A callback function that returns the target temperature.
+        _is_active_callback (callable): A callback function that returns the heating system's current state.
+        _error_reporter (ErrorReporter): An instance of ErrorReporter for logging errors.
+        _logger (Logger): A logging instance for logging information and errors.
+        
+    Methods:
+        set_temperature_callback(callback): Sets the temperature callback.
+        set_target_temperature_callback(callback): Sets the target temperature callback.
+        set_is_active_callback(callback): Sets the active state callback.
+        log_data_periodically(): Logs data every 10 minutes to the database.
+    """
     def __init__(self, zone: int):
         self._logger = logging.getLogger(__name__)
         self._zone = zone
@@ -58,5 +75,4 @@ class DataLogger:
                 error_message = f"Error occurred while logging data: {e}"
                 self._error_reporter.report_error(error_message)
 
-            await asyncio.sleep(10) 
-            # await asyncio.sleep(600)  # 600 seconds = 10 minutes
+            await asyncio.sleep(600)  # 600 seconds = 10 minutes

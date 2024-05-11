@@ -4,10 +4,12 @@ This is the code for `ThermoPi`, a smart thermostat for my home. It's designed a
 
 ## Getting Started
 1. Clone the repo.
-2. Run `python3 -m venv venv` to set up a virtual environment. If that doesn't work, run `sudo apt install python3-venv` to install `venv`.
-3. Run `source venv/bin/activate` to activate `venv`.
-4. Run `pip install -r requirements.txt` to install package dependencies.
-5. Run `smart_thermostat.py` to start running the thermostat.
+2. Copy `.env.template` to your local machine, rename to `.env` and update the values.
+3. Install posgres with `sudo apt install postgresql`. See [Postgres Database](#postgres-database) for more details.
+4. Run `python3 -m venv venv` to set up a virtual environment. If that doesn't work, run `sudo apt install python3-venv` to install `venv`.
+5. Run `source venv/bin/activate` to activate `venv`.
+6. Run `pip install -r requirements.txt` to install package dependencies.
+7. Run `smart_thermostat.py` to start running the thermostat.
 
 In reality, you want `smart_thermostat.py` to run on launch of the Pi automatically. You can set it up to run as a system service using the [template](service_files/thermostat.service).
 
@@ -42,6 +44,9 @@ Whilst developing with `HAP-python`, here are a few discoveries I made that migh
 2. Don't bother using "Wait for network" or their suggested fix: I couldn't get either working. I ended up using a 30 second wait, but this might be worth re-assessing in the future.
 3. Initially I got errors about accessing temporary files; I believe this was linked to setting relative paths within my Python scripts. Adding `WorkingDirectory=/home/developer/ThermoPi` seemed to help the service run without errors.
 
+## Postgres Database
+I used a Postgres database for data logging. The thermostat *should* run without a database setup because the error logger just reports errors, but I've not tested this thoroughly. Aside from installing Postgres, you'll need to have a table `temperature_logs` with the correct fields as per `database.py`. After creating the database you'll need to create a user with all privileges that matches the name of the user account (`developer`). See [postgres.md](documentation/postgres.md) for details and commands.
+
 ### Useful Articles
 - https://pimylifeup.com/raspberry-pi-temperature-sensor/
 - https://thepihut.com/blogs/raspberry-pi-tutorials/ds18b20-one-wire-digital-temperature-sensor-and-the-raspberry-pi
@@ -49,4 +54,6 @@ Whilst developing with `HAP-python`, here are a few discoveries I made that migh
 ### TODO List
 - Look into smarter temperature control. Due to the way underfloor heating works, it continues heating the room once the target temperature has been met. Look into calculating the rate of change in order to predict when to turn the heating element off.
 - Add an offline override if using the temperature sensor in a main room.
-
+  
+### Bugs
+- When initially powering on the device the target temperature is logged as 10 even though it’s set higher. Once the thermostat is turned on and updated it's reported correctly. Seems to be an issue with reporting initial state.

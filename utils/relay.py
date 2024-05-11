@@ -27,7 +27,7 @@ class Relay(RelayProtocol):
         print("GPIO Cleaned up")
 
 if __name__ == "__main__":
-    pin_number = 17  # Example GPIO pin number, change this to your actual relay GPIO pin
+    pin_number = 26  # Example GPIO pin number, change this to your actual relay GPIO pin
     relay = Relay(pin_number)
 
     try:

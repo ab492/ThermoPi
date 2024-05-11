@@ -137,25 +137,14 @@ class Thermostat:
                          
     async def _check_and_control_temperature(self):
         current_temperature = await self.current_temperature_celcius()
-               
-        if not self.is_active and current_temperature < (self._target_temperature_celcius - self._hysteresis):
+        if not self.is_active() and current_temperature < (self._target_temperature_celcius - self._hysteresis):
             self._logger.info("Current temperature (%s°C) below target (%s°C). Turning ON.", current_temperature, self._target_temperature_celcius)
             self._heating_relay.turn_on()
-        elif self.is_active and current_temperature > (self._target_temperature_celcius + self._hysteresis):
+        elif self.is_active() and current_temperature > (self._target_temperature_celcius + self._hysteresis):
             self._logger.info("Current temperature (%s°C) above target (%s°C). Turning OFF.", current_temperature, self._target_temperature_celcius)
             self._heating_relay.turn_off()
         else:
-            if self.is_active:
+            if self.is_active():
                 self._logger.info(f"Heating is ON, current temperature ({current_temperature}°C) is approaching the target ({self._target_temperature_celcius}°C).")
             else:
                 self._logger.info(f"Heating is OFF, current temperature ({current_temperature}°C) is above the lower threshold ({self._target_temperature_celcius - self._hysteresis}°C). No action required.")
-    
-# Example usage
-async def main():
-    relay = Relay(26)
-    thermostat = Thermostat(relay)
-    thermostat.set_target_temperature_celcius(18)
-    await thermostat.start()
-
-if __name__ == "__main__":
-    asyncio.run(main())

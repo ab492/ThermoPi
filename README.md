@@ -1,8 +1,17 @@
 # ThermoPi
 
-This is the code for `ThermoPi`, a smart thermostat for my home. It's designed and tested on a Raspberry Pi (Raspberry Pi 3 Model B Rev 1.2).
+ThermoPi is my smart thermostat project. It's a constant work in progress, used as opportunity to learn more about smart home green technology.
+
+I've started writing up how I built it in a blog series [here](https://maverickprogramming.com/blog/how-to-build-a-smart-thermostat-part-1).
+
+It's designed and tested on a Raspberry Pi (Raspberry Pi 3 Model B Rev 1.2).
+
+
+# Working Notes
+> Note: Everything below here are my working notes, used to document the code for my own future use.
 
 ## Getting Started
+
 1. Clone the repo.
 2. Copy `.env.template` to your local machine, rename to `.env` and update the values.
 3. Install posgres with `sudo apt install postgresql`. See [Postgres Database](#postgres-database) for more details.
@@ -14,6 +23,7 @@ This is the code for `ThermoPi`, a smart thermostat for my home. It's designed a
 In reality, you want `smart_thermostat.py` to run on launch of the Pi automatically. You can set it up to run as a system service using the [template](service_files/thermostat.service).
 
 There are some helpful [MAKE commands](Makefile) you can use to help.
+
 
 ## Thermostat
 This is the core functionality of `ThermoPi` and is designed to work without an internet connection (local network required for access) and without the 'smart' elements like HomeKit integration and API tracking.
@@ -47,13 +57,13 @@ Whilst developing with `HAP-python`, here are a few discoveries I made that migh
 ## Postgres Database
 I used a Postgres database for data logging. The thermostat *should* run without a database setup because the error logger just reports errors, but I've not tested this thoroughly. Aside from installing Postgres, you'll need to have a table `temperature_logs` with the correct fields as per `database.py`. After creating the database you'll need to create a user with all privileges that matches the name of the user account (`developer`). See [postgres.md](documentation/postgres.md) for details and commands.
 
-### Useful Articles
+## Useful Articles
 - https://pimylifeup.com/raspberry-pi-temperature-sensor/
 - https://thepihut.com/blogs/raspberry-pi-tutorials/ds18b20-one-wire-digital-temperature-sensor-and-the-raspberry-pi
 
-### TODO List
+## TODO List
 - Look into smarter temperature control. Due to the way underfloor heating works, it continues heating the room once the target temperature has been met. Look into calculating the rate of change in order to predict when to turn the heating element off.
 - Add an offline override if using the temperature sensor in a main room.
   
-### Bugs
+## Bugs
 - When initially powering on the device the target temperature is logged as 10 even though it’s set higher. Once the thermostat is turned on and updated it's reported correctly. Seems to be an issue with reporting initial state.
